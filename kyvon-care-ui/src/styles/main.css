@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Modern Gemini / Claude / ChatGPT UI Styles ── */
+
+:root {
+  --gemini-gradient: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+  --claude-accent: #d97706;
+  --chatgpt-accent: #10b981;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
+}
+
+/* Thinking Accordion (Gemini 2.0 / Claude 3.7 / o1 Style) */
+details.thinking-accordion {
+  border: 1px solid rgba(186, 230, 253, 0.8);
+  background: rgba(240, 249, 255, 0.6);
+  border-radius: 1rem;
+  margin-bottom: 0.875rem;
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+details.thinking-accordion[open] {
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+summary.thinking-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.75rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 600;
+  color: #0369a1;
+  background: rgba(224, 242, 254, 0.4);
+  list-style: none;
+}
+
+summary.thinking-summary::-webkit-details-marker {
+  display: none;
+}
+
+.thinking-content {
+  padding: 0.875rem 1rem;
+  border-top: 1px solid rgba(224, 242, 254, 0.8);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: #334155;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: rgba(255, 255, 255, 0.7);
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+/* Citations & World Grounding Chips */
+.citation-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: ui-monospace, monospace;
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.citation-chip:hover {
+  background: #e0f2fe;
+  color: #0284c7;
+  border-color: #7dd3fc;
+  transform: translateY(-1px);
+}
+
+/* Prompt Composer Capsule */
+.composer-capsule {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid #e2e8f0;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.composer-capsule:focus-within {
+  border-color: #38bdf8;
+  box-shadow: 0 10px 35px rgba(56, 189, 248, 0.12), 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+/* KaTeX Math Blocks Container */
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
+  margin: 0.5rem 0 !important;
+}
+
+/* Code Blocks Styling */
+pre code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-size: 0.78rem !important;
+  line-height: 1.5 !important;
+}
+
+/* Message Hover Actions Bar */
+.msg-actions {
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  transform: translateY(2px);
+}
+
+.msg-wrapper:hover .msg-actions,
+.msg-wrapper:focus-within .msg-actions {
+  opacity: 1;
+  transform: translateY(0);
+}

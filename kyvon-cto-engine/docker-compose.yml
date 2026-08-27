@@ -1,0 +1,64 @@
+services:
+  # 1. vLLM High-Performance Inference Engine
+  kyvon-inference:
+    image: vllm/vllm-openai:latest
+    container_name: kyvon_vllm_engine
+    restart: unless-stopped
+    runtime: nvidia
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+      - VLLM_ATTENTION_BACKEND=FLASH_ATTN
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ${KYVON_MODEL_PATH:-/mnt/data/kyvon-training/checkpoints/dpo_final}:/root/models/kyvon-dpo:ro
+      - ${HF_CACHE_PATH:-~/.cache/huggingface}:/root/.cache/huggingface
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command: >
+      --model /root/models/kyvon-dpo
+      --served-model-name kyvon-core
+      --dtype auto
+      --gpu-memory-utilization 0.92
+      --max-model-len 8192
+      --enable-prefix-caching
+      --swap-space 16
+      --disable-log-requests
+      --api-key ${KYVON_API_KEY}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # 2. KYVON CTO Bot & GitLab Webhook Service (ctoai.reiwasakura.tech)
+  kyvon-gitlab-bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    container_name: kyvon_gitlab_bot
+    restart: unless-stopped
+    environment:
+      - VLLM_HOST=http://kyvon-inference:8000
+      - KYVON_API_KEY=${KYVON_API_KEY}
+      - GITLAB_URL=${GITLAB_URL:-https://gitlab.reiwasakura.tech}
+      - GITLAB_TOKEN=${GITLAB_TOKEN}
+      - GITLAB_WEBHOOK_SECRET=${GITLAB_WEBHOOK_SECRET}
+      - AUTO_REVIEW_ON_MR_OPEN=true
+      - KYVON_BASE_MODEL=Qwen/Qwen2.5-Coder-7B-Instruct
+      - KYVON_OUTPUT_DIR=/mnt/data/kyvon-training/checkpoints/dpo_final
+      - KYVON_MERGED_DIR=/mnt/data/kyvon-training/checkpoints/dpo_merged_vllm
+    ports:
+      - "127.0.0.1:8090:8090"
+    volumes:
+      - ${KYVON_TRAINING_DIR:-/mnt/data/kyvon-training}:/mnt/data/kyvon-training
+      - ${HF_CACHE_PATH:-~/.cache/huggingface}:/root/.cache/huggingface
+    depends_on:
+      - kyvon-inference

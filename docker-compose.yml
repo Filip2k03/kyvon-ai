@@ -1,0 +1,92 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kyvon-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gitlabserver
+      POSTGRES_USER: sakuraCTO
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-FilipsakuraCTO7feb2k03}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sakuraCTO -d gitlabserver"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: kyvon-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  chat:
+    build:
+      context: ./chat
+      dockerfile: Dockerfile
+    container_name: kyvon-chat
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://sakuraCTO:${POSTGRES_PASSWORD:-FilipsakuraCTO7feb2k03}@postgres:5432/gitlabserver
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3000:3000"
+
+  meet:
+    build:
+      context: ./meet
+      dockerfile: Dockerfile
+    container_name: kyvon-meet
+    restart: unless-stopped
+    environment:
+      PORT: 3001
+      LISTEN_IP: 0.0.0.0
+      ANNOUNCED_IP: ${ANNOUNCED_IP:-187.127.110.32}
+    ports:
+      - "3001:3001"
+      - "40000-40100:40000-40100/udp"
+
+  cto-engine:
+    build:
+      context: ./kyvon-cto-engine/bot
+      dockerfile: Dockerfile
+    container_name: kyvon-cto-engine
+    restart: unless-stopped
+    environment:
+      KYVON_API_KEY: ${KYVON_API_KEY:-}
+      OPENAI_BASE_URL: http://127.0.0.1:8000/v1
+    ports:
+      - "8090:8090"
+
+  rag-engine:
+    image: golang:1.22-alpine
+    container_name: kyvon-rag
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./kyvon-cto-engine/rag:/app
+      - ./kyvon-cto-engine/docs:/docs
+    command: ["sh", "-c", "go build -o kyvon-rag engine.go && ./kyvon-rag -server"]
+    ports:
+      - "8095:8095"
+
+volumes:
+  pgdata:
+  redisdata:

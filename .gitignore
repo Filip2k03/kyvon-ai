@@ -1,0 +1,6 @@
+.DS_Store
+node_modules/
+dist/
+old/
+.kyvon/task.txt
+.kyvon/tasks/

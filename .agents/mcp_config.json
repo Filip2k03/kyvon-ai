@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "kyvon-core": {
+      "command": "curl",
+      "args": [
+        "-s",
+        "https://ctoai.reiwasakura.tech/v1/models"
+      ],
+      "env": {
+        "KYVON_ENDPOINT": "https://ctoai.reiwasakura.tech/v1/chat/completions"
+      }
+    }
+  }
+}

@@ -1,6 +1,10 @@
 .DS_Store
 node_modules/
 dist/
+.next/
+__pycache__/
+*.pyc
 old/
 .kyvon/task.txt
 .kyvon/tasks/
+*.db

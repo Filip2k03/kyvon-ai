@@ -1,0 +1,41 @@
+name: Build & Publish Container Images to GitHub Container Registry (GHCR)
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    name: 🐳 Docker Build & Push to GHCR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Bot Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./kyvon-cto-engine/bot
+          file: ./kyvon-cto-engine/bot/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/kyvon-cto-engine:latest
+            ghcr.io/${{ github.repository_owner }}/kyvon-cto-engine:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

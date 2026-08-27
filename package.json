@@ -1,0 +1,12 @@
+{
+  "name": "kyvon-ai",
+  "version": "2.2.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @kyvon/web dev",
+    "build": "pnpm --filter @kyvon/web build",
+    "start": "pnpm --filter @kyvon/web start",
+    "lint": "pnpm --filter @kyvon/web lint"
+  },
+  "packageManager": "pnpm@9.15.9"
+}

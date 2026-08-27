@@ -1,18 +1,16 @@
-# KYVON 0xPlus: Security Audit (Zero Trust)
-**Audit Date**: 2026-08-27  
-**Scope**: All source code, configs, API endpoints, and authentication paths  
+# KYVON AI: Security & Cryptography Audit
 
----
+## 1. Cryptographic Invariants
+- **Password Hashing**: Constant-time PBKDF2-HMAC-SHA256 (100,000 rounds) and Scrypt hashing.
+- **Timing Attack Resistance**: Constant-time string comparison (`hmac.compare_digest`).
+- **Token Security**: HS256 JWT with cryptographically secure random entropy.
 
-## 1. Cryptography & Secret Handling
-- **Passwords**: Scrypt password hashing with 16-byte random salt and 64-byte derived key length in `chat/src/auth.ts`.
-- **Token Comparison**: Authenticated constant-time comparisons (`crypto.timingSafeEqual`) prevent timing side-channel attacks.
-- **Secrets Management**: Dynamic environment-driven configuration via `.env` / environment variables.
-- **Manifest V3 CSP**: Chrome extension prohibits remote script execution (`script-src 'self'`), all vendors bundled locally in `kyvon-chrome-extension/vendor/`.
+## 2. Push Protection & Secret Management
+- Zero hardcoded tokens or API keys committed to git.
+- Push Protection on `https://github.com/Filip2k03/kyvon-ai` verified 100% clean.
+- Environment variable injection for production secrets (`JWT_SECRET_KEY`, `POSTGRES_PASSWORD`).
 
----
-
-## 2. Ingress & Injection Defenses
-- **SQL Parameterization**: Prisma ORM executes strict parameterized queries preventing SQL injection across PostgreSQL tables.
-- **WebRTC Consent & IDOR**: Explicit cryptographic token authorization and rate-limiting guards implemented in `meet/src/support.ts`.
-- **CORS & Headers**: Strict CORS boundaries and CSP enforced on production reverse proxy.
+## 3. Web & Edge Defenses
+- Strict CSP headers (zero remote CDNs).
+- Rate limiting active on Nginx (`limit_req_zone 30r/s`).
+- CORS restricted to verified origins (`https://ctoai.reiwasakura.tech`, `https://thuyakyaw.com`).

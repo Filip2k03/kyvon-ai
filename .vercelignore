@@ -1,0 +1,14 @@
+.git
+.github
+.agents
+infrastructure
+server
+kyvon-cto-engine
+meet
+chat
+kyvon-care-ui
+kyvon-chrome-extension
+pgdata
+*.log
+*.pyc
+__pycache__

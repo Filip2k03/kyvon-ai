@@ -1,10 +1,9 @@
 {
   "mcpServers": {
     "kyvon-core": {
-      "command": "curl",
+      "command": "python3",
       "args": [
-        "-s",
-        "https://ctoai.reiwasakura.tech/v1/models"
+        ".agents/mcp/server.py"
       ],
       "env": {
         "KYVON_ENDPOINT": "https://ctoai.reiwasakura.tech/v1/chat/completions"

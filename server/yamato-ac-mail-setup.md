@@ -55,7 +55,7 @@ Click **セットアップ情報変更** (Save Setup Information) at the bottom 
 Log in to your VPS terminal:
 ```bash
 ssh sakuraCTO@187.127.110.32
-# Password: FilipsakuraCTO7feb2k03
+# Password: enter interactively from the operator secret store; never place it in Git or shell history.
 ```
 
 ### Complete Copy-Paste Command

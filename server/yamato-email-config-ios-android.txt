@@ -1,0 +1,161 @@
+================================================================================
+EMAIL CONFIGURATION CHEAT SHEET: contact@yamato-ac.jp
+IMAP & POP3 SETTINGS FOR iOS (iPhone/iPad) & ANDROID
+================================================================================
+
+--------------------------------------------------------------------------------
+1. QUICK CONFIGURATION SUMMARY (COPY & PASTE READY)
+--------------------------------------------------------------------------------
+
+[ACCOUNT DETAILS]
+Email Address          : contact@yamato-ac.jp
+Username               : contact@yamato-ac.jp (Full email address required)
+Password               : [Your Mailbox Password]
+Display Name           : Yamato Contact (or your Name/Company)
+
+[INCOMING SERVER - IMAP (RECOMMENDED FOR SMARTPHONES)]
+Protocol               : IMAP
+Server Hostname        : mail.reiwasakura.tech
+Port                   : 993
+Security / Encryption  : SSL/TLS
+Authentication         : Password / Normal Password
+Username               : contact@yamato-ac.jp
+Password               : [Your Mailbox Password]
+
+[INCOMING SERVER - POP3 (ALTERNATIVE)]
+Protocol               : POP3
+Server Hostname        : mail.reiwasakura.tech
+Port                   : 995
+Security / Encryption  : SSL/TLS
+Authentication         : Password / Normal Password
+Username               : contact@yamato-ac.jp
+Password               : [Your Mailbox Password]
+
+[OUTGOING SERVER - SMTP (REQUIRED FOR SENDING EMAILS)]
+Protocol               : SMTP
+Server Hostname        : mail.reiwasakura.tech
+Port                   : 465 (SSL/TLS) or 587 (STARTTLS)
+Security / Encryption  : SSL/TLS (Port 465) or STARTTLS (Port 587)
+Authentication Required: YES / ENABLED (Do NOT leave blank)
+Username               : contact@yamato-ac.jp
+Password               : [Your Mailbox Password]
+
+[WEBMAIL ACCESS (BROWSER)]
+Webmail URL            : https://mail.reiwasakura.tech
+Username               : contact@yamato-ac.jp
+Password               : [Your Mailbox Password]
+
+
+--------------------------------------------------------------------------------
+2. APPLE iOS (iPhone & iPad) SETUP INSTRUCTIONS
+--------------------------------------------------------------------------------
+
+STEP 1: Open "Settings" -> Tap "Mail" -> Tap "Mail Accounts" -> Tap "Add Account"
+STEP 2: Select "Other" -> Tap "Add Mail Account"
+STEP 3: Fill in Initial Account Details:
+        - Name        : Yamato Contact
+        - Email       : contact@yamato-ac.jp
+        - Password    : [Your Mailbox Password]
+        - Description : Yamato AC (contact@yamato-ac.jp)
+        -> Tap "Next"
+
+STEP 4: Select "IMAP" at the top tab (Highlighted in Blue)
+
+STEP 5: Fill in INCOMING MAIL SERVER:
+        - Host Name   : mail.reiwasakura.tech
+        - User Name   : contact@yamato-ac.jp
+        - Password    : [Your Mailbox Password]
+
+STEP 6: Fill in OUTGOING MAIL SERVER:
+        - Host Name   : mail.reiwasakura.tech
+        - User Name   : contact@yamato-ac.jp
+        - Password    : [Your Mailbox Password]
+        * CRITICAL NOTE: Even if iOS displays User Name & Password as "(optional)",
+          you MUST fill them in. The mail server rejects unauthenticated sends!
+
+STEP 7: Tap "Next". iOS will verify the server and display checkmarks.
+STEP 8: Ensure "Mail" is toggled ON -> Tap "Save".
+
+[VERIFYING ADVANCED PORTS ON iOS]
+If mail doesn't send or receive, verify:
+Settings -> Mail -> Accounts -> Tap account -> Tap Account -> "Advanced":
+- Incoming: Use SSL = ON, Authentication = Password, Server Port = 993
+Back -> Tap "SMTP (mail.reiwasakura.tech)" -> Tap Primary Server:
+- Outgoing: Use SSL = ON, Authentication = Password, Server Port = 465 (or 587)
+
+
+--------------------------------------------------------------------------------
+3. ANDROID (GMAIL APP) SETUP INSTRUCTIONS
+--------------------------------------------------------------------------------
+
+STEP 1: Open Gmail App -> Tap your profile icon (top-right) -> "Add another account"
+STEP 2: Select "Other"
+STEP 3: Enter email address: contact@yamato-ac.jp -> Tap "Manual setup" (bottom-left)
+STEP 4: Choose Account Type: "Personal (IMAP)" (Recommended)
+STEP 5: Enter your Password -> Tap "Next"
+
+STEP 6: INCOMING SERVER SETTINGS:
+        - Username      : contact@yamato-ac.jp
+        - Password      : [Your Mailbox Password]
+        - Server        : mail.reiwasakura.tech
+        - Port          : 993
+        - Security type : SSL/TLS
+        -> Tap "Next"
+
+STEP 7: OUTGOING SERVER SETTINGS:
+        - Require sign-in : ON (Checked)
+        - Username        : contact@yamato-ac.jp
+        - Password        : [Your Mailbox Password]
+        - SMTP server     : mail.reiwasakura.tech
+        - Port            : 465 (or 587)
+        - Security type   : SSL/TLS (or STARTTLS)
+        -> Tap "Next"
+
+STEP 8: Account Options: Sync frequency (Every 15 min / Automatic) -> Tap "Next"
+STEP 9: Your Name: "Yamato Contact" -> Tap "Next" to finish!
+
+
+--------------------------------------------------------------------------------
+4. ANDROID (SAMSUNG EMAIL) SETUP INSTRUCTIONS
+--------------------------------------------------------------------------------
+
+STEP 1: Open Samsung Email -> Tap "Add Account" -> Select "Other"
+STEP 2: Enter "contact@yamato-ac.jp" and Password -> Tap "Manual setup"
+STEP 3: Select "IMAP account"
+STEP 4: Fill in:
+        - Email Address        : contact@yamato-ac.jp
+        - User Name            : contact@yamato-ac.jp
+        - Password             : [Your Mailbox Password]
+        - IMAP Server          : mail.reiwasakura.tech
+        - Security type        : SSL
+        - Port                 : 993
+        - SMTP Server          : mail.reiwasakura.tech
+        - Security type        : SSL
+        - Port                 : 465
+        - Authentication req.  : ON
+        - SMTP User Name       : contact@yamato-ac.jp
+        - SMTP Password        : [Your Mailbox Password]
+STEP 5: Tap "Sign in".
+
+
+--------------------------------------------------------------------------------
+5. COMMON TROUBLESHOOTING & SOLUTIONS
+--------------------------------------------------------------------------------
+
+[ERROR: CANNOT SEND EMAIL / SMTP REJECTED]
+Fix: Outgoing SMTP authentication is disabled in your app. Enable "Authentication Required"
+and enter username "contact@yamato-ac.jp" and your password under Outgoing Server.
+
+[ERROR: CERTIFICATE WARNING OR UNTRUSTED DOMAIN]
+Fix: Do not use arbitrary server names. Use "mail.reiwasakura.tech".
+The Let's Encrypt SSL certificate is issued and auto-renewed for mail.reiwasakura.tech,
+ensuring 100% trusted verification on all iOS and Android versions.
+
+[IMAP VS POP3: WHICH SHOULD I USE?]
+- Use IMAP: If you want all emails, folders, sent messages, and read/unread status
+  to sync in real-time across your iPhone, Android, Mac/PC, and Webmail.
+- Use POP3: Only if you want to download emails to a single local device.
+
+================================================================================
+END OF CONFIGURATION CHEAT SHEET
+================================================================================

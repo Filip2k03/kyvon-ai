@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clientConfig version="1.1">
+  <emailProvider id="yamato-ac.jp">
+    <domain>yamato-ac.jp</domain>
+    <displayName>Yamato AC Mail</displayName>
+    <displayShortName>Yamato</displayShortName>
+
+    <!-- Incoming IMAP (Recommended) -->
+    <incomingServer type="imap">
+      <hostname>mail.reiwasakura.tech</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <authentication>password-cleartext</authentication>
+      <username>%EMAILADDRESS%</username>
+    </incomingServer>
+
+    <!-- Incoming POP3 (Alternative) -->
+    <incomingServer type="pop3">
+      <hostname>mail.reiwasakura.tech</hostname>
+      <port>995</port>
+      <socketType>SSL</socketType>
+      <authentication>password-cleartext</authentication>
+      <username>%EMAILADDRESS%</username>
+    </incomingServer>
+
+    <!-- Outgoing SMTP -->
+    <outgoingServer type="smtp">
+      <hostname>mail.reiwasakura.tech</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <authentication>password-cleartext</authentication>
+      <username>%EMAILADDRESS%</username>
+    </outgoingServer>
+
+    <!-- Outgoing SMTP (STARTTLS Alternative) -->
+    <outgoingServer type="smtp">
+      <hostname>mail.reiwasakura.tech</hostname>
+      <port>587</port>
+      <socketType>STARTTLS</socketType>
+      <authentication>password-cleartext</authentication>
+      <username>%EMAILADDRESS%</username>
+    </outgoingServer>
+  </emailProvider>
+</clientConfig>

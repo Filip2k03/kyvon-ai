@@ -86,10 +86,10 @@ server {
     }
 }
 
-# 5. Reiwa Sakura Landing Page
+# 5. nicely.yamato-ac.jp only — NEVER reiwasakura.tech (that is reiwasakura-app)
 server {
     listen 80;
-    server_name reiwasakura.tech www.reiwasakura.tech nicely.yamato-ac.jp;
+    server_name nicely.yamato-ac.jp;
     root /var/www/html/sakura;
     index index.html;
 
@@ -113,8 +113,7 @@ server {
 }
 NGINX_CONF'
 
-echo "[2/4] Testing Nginx configuration..."
-sudo rm -f /etc/nginx/sites-enabled/*
+echo "[2/4] Testing Nginx configuration (keep other sites-enabled entries)..."
 sudo ln -sf /etc/nginx/sites-available/sakura /etc/nginx/sites-enabled/sakura
 sudo nginx -t
 sudo systemctl reload nginx

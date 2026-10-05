@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadDisplayName</key>
+    <string>Yamato AC Mail (contact@yamato-ac.jp)</string>
+    <key>PayloadDescription</key>
+    <string>Automated Mail Configuration for contact@yamato-ac.jp on iOS and macOS</string>
+    <key>PayloadIdentifier</key>
+    <string>jp.yamato-ac.mail.contact</string>
+    <key>PayloadOrganization</key>
+    <string>Yamato AC</string>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>9B3C2A58-74D1-4682-A3D9-202608254011</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>PayloadType</key>
+            <string>com.apple.mail.managed</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+            <key>PayloadIdentifier</key>
+            <string>jp.yamato-ac.mail.contact.profile</string>
+            <key>PayloadUUID</key>
+            <string>7E4F1B39-812C-4A59-B81D-202608254012</string>
+            <key>PayloadDisplayName</key>
+            <string>Yamato AC (contact@yamato-ac.jp)</string>
+            <key>EmailAccountType</key>
+            <string>EmailTypeIMAP</string>
+            <key>EmailAccountDescription</key>
+            <string>Yamato AC</string>
+            <key>EmailAccountName</key>
+            <string>Yamato Contact</string>
+            <key>EmailAddress</key>
+            <string>contact@yamato-ac.jp</string>
+            <key>IncomingMailServerAuthentication</key>
+            <string>EmailAuthPassword</string>
+            <key>IncomingMailServerHostName</key>
+            <string>mail.reiwasakura.tech</string>
+            <key>IncomingMailServerPortNumber</key>
+            <integer>993</integer>
+            <key>IncomingMailServerUseSSL</key>
+            <true/>
+            <key>IncomingMailServerUsername</key>
+            <string>contact@yamato-ac.jp</string>
+            <key>OutgoingMailServerAuthentication</key>
+            <string>EmailAuthPassword</string>
+            <key>OutgoingMailServerHostName</key>
+            <string>mail.reiwasakura.tech</string>
+            <key>OutgoingMailServerPortNumber</key>
+            <integer>465</integer>
+            <key>OutgoingMailServerUseSSL</key>
+            <true/>
+            <key>OutgoingMailServerUsername</key>
+            <string>contact@yamato-ac.jp</string>
+            <key>OutgoingPasswordSameAsIncomingPassword</key>
+            <true/>
+        </dict>
+    </array>
+</dict>
+</plist>

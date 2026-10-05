@@ -38,7 +38,7 @@ Go to **MuuMuu Domain Control Panel** -> **ドメイン管理** -> **ムーム�
 |---|---|---|---|---|
 | *(leave blank)* | **A** | `187.127.110.32` | *(leave blank)* | Root apex A record for `yamato-ac.jp` |
 | *(leave blank)* | **MX** | `mail.reiwasakura.tech` | `10` | Directs incoming mail to Poste.io mail server |
-| *(leave blank)* | **TXT** | `v=spf1 mx a:mail.reiwasakura.tech ip4:187.127.110.32 ~all` | *(leave blank)* | **SPF**: Authorizes server IP to send mail for `@yamato-ac.jp` |
+| *(leave blank)* | **TXT** | `v=spf1 mx a:mail.reiwasakura.tech ip4:187.127.110.32 include:_spf.google.com ~all` | *(leave blank)* | **SPF**: Authorizes server IP and Google relay to send mail for `@yamato-ac.jp` |
 | `www` | **A** | `187.127.110.32` | *(leave blank)* | Web subdomain `www.yamato-ac.jp` |
 | `mail` | **A** | `187.127.110.32` | *(leave blank)* | Mail subdomain `mail.yamato-ac.jp` |
 | `office` | **A** | `187.127.110.32` | *(leave blank)* | Office subdomain `office.yamato-ac.jp` |

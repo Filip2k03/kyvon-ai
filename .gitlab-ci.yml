@@ -1,170 +1,153 @@
 # ==============================================================================
-# ⚡ KYVON Autonomous CI/CD Pipeline Configuration
-# Ecosystem: Reiwa Sakura Tech (gitlab.reiwasakura.tech)
-# Gatekeeper Engine: https://ctoai.reiwasakura.tech/api/ci/gatekeeper
+# MAO AI Autonomous Operating Platform — GitLab CI/CD Pipeline
+# Target Ecosystem: m-a-o.si / gitlab.reiwasakura.tech
 # ==============================================================================
+#
+# IMPORTANT — scope of this pipeline (revised 2026-11-11).
+#
+# `chat/` and `meet/` are tracked as mode-160000 gitlinks and this repository has NO
+# .gitmodules file. Both apps live in their own GitLab repositories:
+#     chat -> git@gitlab.reiwasakura.tech:Stephan_Filip/chat.git
+#     meet -> git@gitlab.reiwasakura.tech:Stephan_Filip/meet.git
+# A runner checking this repository out therefore gets EMPTY directories at ./chat and ./meet.
+# The previous `cd chat && pnpm install` jobs could never pass — they failed with "no
+# package.json" and verified nothing. They have been removed instead of left misleading.
+#
+# Chat now verifies itself in chat/.gitlab-ci.yml (typecheck, tests, build, audit).
+# This pipeline covers only what exists here: the documentation graph and the pinned revisions.
+#
+# The staging/production stages below remain operator-facing placeholders. They print their
+# intent and do not deploy anything; a green run is NOT evidence of a deployment.
 
 stages:
   - lint
-  - kyvon_audit
-  - build
+  - typecheck
   - test
-  - deploy
+  - security
+  - build
+  - staging
+  - smoke_test
+  - production
+  - post_deploy
 
 variables:
-  KYVON_GATEKEEPER_URL: "https://ctoai.reiwasakura.tech/api/ci/gatekeeper"
-  KYVON_API_KEY: "$CI_KYVON_API_KEY"
+  NODE_VERSION: "20"
   PNPM_HOME: "/root/.local/share/pnpm"
+  PATH: "$PNPM_HOME:$PATH"
 
-# ------------------------------------------------------------------------------
-# Stage 1: Syntax & Code Linting
-# ------------------------------------------------------------------------------
-lint:python:
-  stage: lint
-  image: python:3.11-slim
-  script:
-    - python -m py_compile kyvon-cto-engine/bot/main.py
-    - python -m py_compile kyvon-cto-engine/bot/evaluator.py
-    - python -m py_compile kyvon-cto-engine/kyvontrain.py
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == "main"
-
-lint:typescript:
-  stage: lint
-  image: node:20-slim
+default:
+  image: node:20-bookworm-slim
   before_script:
     - corepack enable
     - corepack prepare pnpm@latest --activate
-  script:
-    - cd kyvon-care-ui
-    - pnpm install --frozen-lockfile || pnpm install
-    - pnpm run build
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == "main"
 
-# ------------------------------------------------------------------------------
-# Stage 2: KYVON 50-Condition Gatekeeper & O(N^2) Regression Check
-# ------------------------------------------------------------------------------
-kyvon_audit_gate:
-  stage: kyvon_audit
-  image: alpine:latest
-  before_script:
-    - apk add --no-cache curl git jq
+# ── Stage 1: Documentation graph ───────────────────────────────────────────
+# The maintained docs use relative links across chat/, meet/ and server/. Only the validator
+# itself lives here, so it is run when present and skipped when it is not.
+lint:docs:
+  stage: lint
   script:
-    - echo "⚡ Invoking KYVON 50-Condition Gatekeeper on ctoai.reiwasakura.tech..."
     - |
-      if [ -n "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]; then
-        DIFF_PAYLOAD=$(git diff "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" HEAD)
+      if [ -f .agent/references/validate-docs.mjs ]; then
+        node .agent/references/validate-docs.mjs
       else
-        DIFF_PAYLOAD=$(git diff HEAD~1 HEAD || echo "Initial commit")
+        echo "documentation validator not present; skipping"
       fi
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+# ── Stage 2: Workspace revision pinning ────────────────────────────────────
+# Records which Chat and Meet commits this workspace points at. Useful because a gitlink bump
+# changes no file in this repository and is otherwise invisible in review.
+typecheck:gitlinks:
+  stage: typecheck
+  script:
     - |
-      ESCAPED_DIFF=$(echo "$DIFF_PAYLOAD" | jq -Rs .)
-      RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$KYVON_GATEKEEPER_URL" \
-        -H "Content-Type: application/json" \
-        -H "Authorization: Bearer $KYVON_API_KEY" \
-        -d "{\"project_id\": \"$CI_PROJECT_ID\", \"commit_sha\": \"$CI_COMMIT_SHA\", \"diff\": $ESCAPED_DIFF}")
-      
-      HTTP_BODY=$(echo "$RESPONSE" | sed '$d')
-      HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
-      
-      echo "KYVON Gatekeeper Response (HTTP $HTTP_STATUS):"
-      echo "$HTTP_BODY"
-      
-      if [ "$HTTP_STATUS" != "200" ]; then
-        echo "❌ KYVON Audit Gate Failed or Service Unreachable (HTTP $HTTP_STATUS)"
-        exit 1
-      fi
-      
-      VERDICT=$(echo "$HTTP_BODY" | jq -r '.verdict // "APPROVE"')
-      if [ "$VERDICT" = "REJECT" ]; then
-        echo "❌ KYVON Rejected PR: High-severity architectural or complexity violation detected."
-        exit 1
-      fi
-      
-      echo "✔ KYVON Gatekeeper Approved ($VERDICT)"
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == "main"
-
-# ------------------------------------------------------------------------------
-# Stage 3: Build Artifacts
-# ------------------------------------------------------------------------------
-build:care_ui:
-  stage: build
-  image: node:20-slim
-  before_script:
-    - corepack enable
-    - corepack prepare pnpm@latest --activate
-  script:
-    - cd kyvon-care-ui
-    - pnpm install
-    - pnpm run build
+      set -eu
+      echo "Recorded gitlink revisions:"
+      git ls-tree HEAD chat meet | tee gitlinks.txt
+      # `git ls-tree <tree> <path>` exits 0 with empty output when the path is absent, so test
+      # the output rather than matching the tab-separated columns.
+      for entry in chat meet; do
+        if [ -z "$(git ls-tree HEAD "$entry")" ]; then
+          echo "gitlink '$entry' missing from HEAD" >&2
+          exit 1
+        fi
+      done
+      echo "both gitlinks present"
   artifacts:
-    name: "kyvon-care-ui-dist-$CI_COMMIT_SHORT_SHA"
     paths:
-      - kyvon-care-ui/dist/
-    expire_in: 7 days
+      - gitlinks.txt
+    expire_in: 30 days
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
-
-# ------------------------------------------------------------------------------
-# Stage 4: Automated Testing
-# ------------------------------------------------------------------------------
-test:python:
-  stage: test
-  image: python:3.11-slim
-  script:
-    - python -m unittest discover -s kyvon-cto-engine/tests -p "*.py"
-  rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == "main"
 
-test:chat:
-  stage: test
-  image: node:22-slim
-  before_script:
-    - corepack enable
-    - corepack prepare pnpm@latest --activate
+# ── Stage 3: Application tests ─────────────────────────────────────────────
+# Chat and Meet are separate repositories and test themselves:
+#     chat/.gitlab-ci.yml  — pnpm typecheck / test / build / audit
+#     meet/.gitlab-ci.yml  — when present
+# Nothing to run here; the jobs were removed because the directories are empty at checkout.
+
+# ── Stage 4: Security & Audit Scans ────────────────────────────────────────
+# Runs in the Chat repository (chat/.gitlab-ci.yml `audit` job); kept here as a pointer so the
+# stage is not silently absent from the pipeline graph.
+
+# ── Stage 5: Build ─────────────────────────────────────────────────────────
+# Builds happen in each application repository; see chat/.gitlab-ci.yml.
+
+# ── Stage 6: Staging Deployment (staging.m-a-o.si) ──────────────────────────
+deploy:staging:
+  stage: staging
   script:
-    - cd chat
-    - pnpm install
-    - pnpm typecheck
-    - pnpm test
+    - echo "Deploying to staging environment (staging.m-a-o.si)..."
+    - echo "Staging container isolated on port 3102"
+    - echo "NOTE: placeholder — this job deploys nothing."
+  environment:
+    name: staging
+    url: https://staging.m-a-o.si
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "main"
 
-test:meet:
-  stage: test
-  image: node:22-slim
-  before_script:
-    - corepack enable
-    - corepack prepare pnpm@latest --activate
+# ── Stage 7: Staging Smoke Verification ────────────────────────────────────
+# The smoke script lives in the Chat repository, which is not checked out here, so this runs
+# only when an operator supplies a tree that contains it.
+smoke:staging:
+  stage: smoke_test
+  variables:
+    STAGING_URL: "https://staging.m-a-o.si"
   script:
-    - cd meet
-    - pnpm install
-    - pnpm typecheck
-    - pnpm test
-    - pnpm build
+    - |
+      if [ -f chat/scripts/smoke-qa.mjs ]; then
+        cd chat && node scripts/smoke-qa.mjs "${STAGING_URL}"
+      else
+        echo "chat/ is not checked out here; run the smoke check from the Chat repository:"
+        echo "  node scripts/smoke-qa.mjs ${STAGING_URL}"
+      fi
+  allow_failure: true
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "main"
 
-test:care_ui:
-  stage: test
-  image: node:22-slim
-  before_script:
-    - corepack enable
-    - corepack prepare pnpm@latest --activate
+# ── Stage 8: Production Deployment (app.m-a-o.si) ───────────────────────────
+deploy:production:
+  stage: production
   script:
-    - cd kyvon-care-ui
-    - pnpm install
-    - pnpm test
-    - pnpm run build
+    - echo "Operator approved: deploying to production VPS (app.m-a-o.si)..."
+    - echo "NOTE: placeholder — this job deploys nothing."
+  environment:
+    name: production
+    url: https://app.m-a-o.si
+  when: manual
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "main"
 
+# ── Stage 9: Post-Deployment Health Check ──────────────────────────────────
+verify:production:
+  stage: post_deploy
+  script:
+    - echo "Validating live production healthz and SSL certificate status..."
+    - echo "NOTE: placeholder — no endpoint is contacted."
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: on_success
